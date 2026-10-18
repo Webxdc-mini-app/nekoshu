@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>猫の集会</title>
+<style>
+:root{color-scheme:light dark;--bg:#f3f0e6;--card:#fff;--ink:#2b2118;--sub:#7a6c5d;--blue:#2b5fd9;--red:#e0334c;--line:#e3d8c6;--g1:#e8f5d8;--g2:#cde8b5;--g3:#a8c686;font-family:ui-rounded,"Hiragino Maru Gothic ProN","Yu Gothic",system-ui,sans-serif}
+@media(prefers-color-scheme:dark){:root{--bg:#161a14;--card:#232a20;--ink:#eef2e6;--sub:#a3ad96;--line:#38422f;--g1:#2f4d30;--g2:#27432b;--g3:#1d3322}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);padding:max(12px,env(safe-area-inset-top)) 12px 24px;line-height:1.5}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:4px 0 10px;min-height:40px}
+h1{font-size:1.25rem;margin:0}h1 small{font-size:.7rem;color:var(--sub);margin-left:4px}h2{font-size:1.1rem;margin:0 0 6px}
+.sub{color:var(--sub)}small{font-size:.78rem}
+button{font:inherit;border:0;border-radius:999px;padding:.55em 1.1em;background:var(--ink);color:var(--bg);cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+button:disabled{opacity:.4;cursor:default}
+:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+#park{position:relative;height:min(52vh,430px);min-height:300px;border-radius:24px;overflow:hidden;background:radial-gradient(120% 80% at 50% 0%,var(--g1) 0%,var(--g2) 40%,var(--g3) 100%);box-shadow:0 0 0 1.5px var(--line)}
+#park::before{content:"";position:absolute;inset:10px;border-radius:18px;border:3px dashed #8b735566;pointer-events:none}
+.obj{position:absolute;transform:translate(-50%,-50%);text-align:center;pointer-events:none;font-size:2rem;line-height:1.1;filter:drop-shadow(0 4px 4px #0003)}
+.obj small{display:block;font-size:.62rem;font-weight:700;background:#fffc;color:#2b2118;border-radius:99px;padding:0 .5em;margin-top:2px}
+button#mb{position:absolute;right:12px;top:10px;z-index:99999;background:transparent;color:inherit;font-size:2rem;padding:2px 8px;line-height:1.2}
+#empty{position:absolute;inset:45% 0 auto;text-align:center;margin:0;color:var(--sub)}
+.badge{position:absolute;top:8px;right:8px;background:var(--red);color:#fff;border-radius:999px;font-size:.72rem;padding:.05em .5em;line-height:1.4}
+#mb .badge{top:0;right:0}
+.pet{position:absolute;left:0;top:0;width:110px;transform-origin:50% 100%;cursor:pointer;will-change:transform;-webkit-tap-highlight-color:transparent}
+.pet svg{display:block;width:110px;height:auto;overflow:visible}
+.pet .badge{top:0;right:8px}
+.shadow{position:absolute;left:16%;right:16%;bottom:-3px;height:11px;border-radius:50%;background:#0003;filter:blur(2px)}
+.tag{position:absolute;top:100%;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:.72rem;background:var(--card);padding:.05em .6em;border-radius:99px;margin-top:4px;box-shadow:0 0 0 1px var(--line)}
+.pet.mine .tag{box-shadow:0 0 0 2px var(--blue)}.pet.sel .tag{background:var(--ink);color:var(--bg)}
+.bub{position:absolute;top:-16px;left:50%;margin-left:-.5em;font-size:1.1rem;animation:float 2s ease-in-out infinite}
+.speech{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);white-space:nowrap;background:#fff;color:#2b2118;font-size:.78rem;font-weight:700;padding:.2em .8em;border-radius:14px;box-shadow:0 2px 6px #0003;margin-bottom:-6px;z-index:5}
+.speech::after{content:"";position:absolute;left:50%;top:100%;margin-left:-5px;border:5px solid transparent;border-top-color:#fff}
+#roster{display:flex;gap:8px;overflow-x:auto;padding:10px 2px 4px}
+button.chip{background:var(--card);color:var(--ink);box-shadow:0 0 0 1.5px var(--line);border-radius:16px;padding:3px 12px 3px 4px;display:flex;align-items:center;gap:6px;flex:none;font-size:.85rem}
+button.chip.on{box-shadow:0 0 0 2.5px var(--blue)}button.chip.home{opacity:.6}
+.chip svg{width:38px;height:auto}.chip .pa *{animation:none!important}
+.panel{background:var(--card);border-radius:20px;padding:12px;margin-top:8px;box-shadow:0 0 0 1.5px var(--line)}
+.ph{display:flex;gap:10px;align-items:center;margin-bottom:8px}.ph svg{width:56px;height:auto;flex:none}.ph .pa *{animation:none!important}
+.pill{font-size:.68rem;font-weight:700;border-radius:99px;padding:.05em .6em;background:var(--ink);color:var(--bg)}
+.stat{display:grid;grid-template-columns:52px 1fr 26px;gap:6px;align-items:center;font-size:.68rem;font-weight:700;margin:3px 0}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;border-radius:4px;transition:width .6s}
+.stat b{text-align:right;font-weight:400;color:var(--sub)}
+.acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.acts button{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line);border-radius:14px;padding:.5em .2em;font-size:.78rem;line-height:1.3}
+.acts button span{display:block;font-size:1.2rem}.acts button small{display:block;color:var(--sub);font-size:.62rem}
+/* 犬の動き */
+.pa .body{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 3.2s ease-in-out infinite}
+.pa .hd{transform-origin:60px 82px;animation:headbob 3.2s ease-in-out infinite}
+.pa .tail{animation:wag .45s ease-in-out infinite alternate}
+.pa.sleepy .tail,.pa.hungry .tail{animation-duration:2.6s}
+.pa .ear{animation:twitch 6s var(--d) infinite}
+.pa .eyes{transform-box:fill-box;transform-origin:center;animation:blink 4.6s var(--d) infinite}
+.pa .arm{transform-box:fill-box;transform-origin:50% 0}
+.pa.hungry .body{animation:gurgle .5s infinite}.pa.sleepy .hd{animation:doze 4s ease-in-out infinite}.pa.lonely .hd{animation:sulk 5s ease-in-out infinite}
+.pa.lonely .ear{animation:none;transform:rotate(12deg)}.pa.lonely .tail{animation:none;transform:rotate(25deg)}
+.pa .z{animation:zz 3s ease-out infinite;font-size:13px;fill:var(--ink);opacity:0}.pa .tear{animation:tear 2.2s infinite}
+.walk .hop{animation:hop .4s ease-in-out infinite}.run .hop{animation-duration:.28s}
+.walk .arm.l{animation:swing .4s ease-in-out infinite alternate}.walk .arm.r{animation:swing .4s ease-in-out infinite alternate-reverse}
+.walk .ft1{animation:step .4s infinite alternate}.walk .ft2{animation:step .4s infinite alternate-reverse}
+.jump .act{animation:jump .8s}.squish .act{animation:squish .6s}.eat .hd{animation:nod .35s 4}.bark .act{animation:jump .35s 2}
+.fx{position:absolute;z-index:99998;pointer-events:none;font-size:1.4rem;margin-left:-.6em}
+.heart{animation:rise 1.6s ease-out forwards}.drop{animation:dropin .8s cubic-bezier(.3,0,.8,1) forwards;font-size:1.9rem}.pop{animation:popup 1.4s ease-out forwards;font-size:2rem}
+@keyframes breathe{50%{transform:scale(1.03,1.05)}}@keyframes headbob{50%{transform:translateY(1.6px) rotate(-1deg)}}
+@keyframes wag{from{transform:rotate(-12deg)}to{transform:rotate(18deg)}}
+@keyframes twitch{0%,90%,100%{transform:none}93%{transform:rotate(-8deg)}96%{transform:rotate(5deg)}}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+@keyframes swing{from{transform:rotate(-24deg)}to{transform:rotate(24deg)}}@keyframes step{to{transform:translateY(-4px)}}
+@keyframes hop{50%{transform:translateY(-6px)}}@keyframes float{50%{transform:translateY(-5px)}}
+@keyframes zz{0%{opacity:0;transform:translate(0,6px)}30%{opacity:1}100%{opacity:0;transform:translate(9px,-16px)}}
+@keyframes doze{50%{transform:rotate(6deg) translateY(3px)}}@keyframes gurgle{25%{transform:scale(1.05,.96)}75%{transform:scale(.97,1.04)}}
+@keyframes tear{0%{opacity:0;transform:translateY(0)}20%{opacity:1}100%{opacity:0;transform:translateY(14px)}}
+@keyframes sulk{50%{transform:translateY(3px)}}@keyframes nod{50%{transform:translateY(5px) rotate(4deg)}}
+@keyframes jump{30%{transform:translateY(-26px)}50%{transform:scale(1.08,.9)}70%{transform:translateY(-12px)}}
+@keyframes squish{30%{transform:scale(1.15,.8)}60%{transform:scale(.92,1.1)}}
+@keyframes rise{from{opacity:1;transform:translateY(0) scale(.6)}to{opacity:0;transform:translateY(-70px) scale(1.2)}}
+@keyframes dropin{from{transform:translateY(-120px)}to{transform:translateY(0)}}
+@keyframes popup{0%{transform:scale(0)}30%{transform:scale(1.3)}100%{opacity:0;transform:translateY(-40px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+dialog{border:0;border-radius:24px;padding:18px;width:min(420px,92vw);background:var(--card);color:var(--ink)}
+dialog::backdrop{background:#0008}
+.row,.pick{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:12px 0}
+input,textarea,select{font:inherit;width:100%;padding:.6em .8em;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);margin:6px 0}
+button.opt{background:var(--bg);color:var(--ink);border-radius:16px;padding:6px;width:84px;font-size:.72rem;line-height:1.3}button.opt svg{width:100%;height:auto}button.opt .pa *{animation:none!important}
+button.opt.on,button.pr.on{box-shadow:0 0 0 3px var(--blue)}button.pr{background:var(--bg);color:var(--ink);font-size:.8rem}
+.air{padding:12px 14px;margin:12px 0;border:7px solid transparent;border-image:repeating-linear-gradient(135deg,var(--red) 0 10px,var(--card) 10px 20px,var(--blue) 20px 30px,var(--card) 30px 40px) 7;background:var(--bg)}
+.air p{margin:6px 0;white-space:pre-wrap;word-break:break-word}
+.from{display:flex;align-items:center;gap:8px}.from svg{width:48px;height:auto;flex:none}.from .pa *{animation:none!important}
+
+/* ---- 猫の集会: 上書き ---- */
+:root{--bg:#FFF7ED;--card:#fff;--ink:#3A2A2A;--sub:#8A7A7A;--accent:#FF7AA2;--line:#FFE2E8;--border:#FFE2E8}
+@media(prefers-color-scheme:dark){:root{--bg:#211A1A;--card:#2A2020;--ink:#FFE9E9;--sub:#C9B0B0;--accent:#FF8FB0;--line:#4A3535;--border:#4A3535}}
+button{background:var(--accent);color:#fff}
+button.ghost{background:transparent;color:var(--ink)}
+button.chip,button.opt,button.pr,.acts button,button#mb{color:var(--ink)}
+button.chip.on,button.opt.on,button.pr.on{box-shadow:0 0 0 2.5px var(--accent)}
+.pet.mine .tag{box-shadow:0 0 0 2px var(--accent)}
+header{flex-wrap:wrap}#hb{display:flex;gap:6px;flex-wrap:wrap}#hb button{font-size:.85rem;padding:.45em .9em}
+#park{height:min(54vh,450px);background:linear-gradient(#0f1534 0,#243062 17%,#2c3e5c 17.1%,#27403f 55%,#1d3330 100%)}
+#park::before{inset:auto;left:0;right:0;top:12.5%;height:5%;border:0;border-radius:0;background:repeating-linear-gradient(90deg,#0d1226 0 9px,#0000 9px 14px);opacity:.85}
+.obj small{background:#000a;color:#fff}
+.star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;animation:twinkle 3s ease-in-out infinite}
+@keyframes twinkle{50%{opacity:.2}}
+#stars{position:absolute;inset:0;pointer-events:none}
+#moon{position:absolute;left:14px;top:8px;font-size:1.9rem;filter:drop-shadow(0 0 8px #ffe9a8)}
+#ring{position:absolute;left:50%;top:53%;width:68%;height:34%;transform:translate(-50%,-50%);border-radius:50%;border:2px dashed #ffffff55;background:radial-gradient(#ffffff14,#0000 70%);pointer-events:none;display:grid;place-items:end center}
+#ring small{color:#ffffff99;font-size:.65rem;margin-bottom:-14px}
+#ring.on{border-color:#ffd27a;box-shadow:0 0 28px #ffd27a66;animation:glow 2s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 44px #ffd27aaa}}
+#banner{position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:99999;background:#000b;color:#fff;border:1.5px solid #ffd27a;border-radius:99px;padding:.25em 1em;font-size:.78rem;white-space:nowrap;max-width:62%;overflow:hidden;text-overflow:ellipsis}
+.sit .hop{transform:scaleY(.93);transform-origin:50% 100%}.sit .pa .tail{animation-duration:1.8s}
+.pr:disabled,button:disabled{opacity:.4}
+</style></head><body>
+<div id="app"><header><h1>猫の集会<small>Cat Gathering</small></h1><span id="hb"></span></header>
+<div id="park"><div id="stars"></div><span id="moon">🌙</span><div id="ring"><small>集会所</small></div><div id="banner" hidden></div>
+<button id="mb" data-a="inbox" aria-label="手紙">📮<b class="badge" hidden></b></button><p id="empty">まだ猫がいないよ。<br>「+ 新しい猫」から迎えよう！</p></div>
+<div id="roster"></div><div id="panel"></div></div>
+<dialog id="dlg"></dialog>
+<script src="webxdc.js"></script>
+<script>
+// webxdc の共有 API がない通常のブラウザでは、端末内で遊ぶ。
+const browserMode=!(window.webxdc&&typeof window.webxdc.sendUpdate==='function'&&typeof window.webxdc.setUpdateListener==='function');
+function createBrowserAPI(){
+ const key='nekoshu-browser-history-v1',userKey='nekoshu-browser-user-v1';
+ let user=localStorage.getItem(userKey);
+ if(!user){user='browser-'+(globalThis.crypto?.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2));localStorage.setItem(userKey,user)}
+ const read=()=>{const events=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(events))throw Error('保存データを読み込めません。');return events};
+ read();localStorage.setItem(key,JSON.stringify(read()));
+ let listener=null,serial=0;
+ const pump=()=>{if(!listener)return;const events=read();while(serial<events.length){const index=serial++;listener({payload:events[index],serial,max_serial:events.length})}};
+ addEventListener('storage',e=>{if(e.key===key)pump()});
+ return{selfAddr:user,selfName:'ブラウザの飼い主',sendUpdateInterval:1,sendUpdateMaxSize:128000,
+  sendUpdate(update){const events=read();events.push(update.payload);try{localStorage.setItem(key,JSON.stringify(events))}catch(e){alert('データを保存できませんでした。ブラウザの保存容量や設定を確認してください。');throw e}pump()},
+  setUpdateListener(callback,after=0){listener=callback;serial=after;pump();return Promise.resolve()},
+  async sendToChat(message){const blob=new Blob([message.file.plainText],{type:'application/json;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=message.file.name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000)}
+ };
+}
+let browserAPI;
+try{if(browserMode)browserAPI=createBrowserAPI()}
+catch(e){document.querySelector('#app').innerHTML='<h1>猫の集会</h1><p>ブラウザの保存機能が使えません。サイトのデータ保存を許可して開き直してください。</p>';throw e}
+const W=browserMode?browserAPI:window.webxdc;
+const modeNote=document.createElement('p');modeNote.id='mode-note';modeNote.style.cssText='font-size:.8rem;margin:4px 0 12px;color:var(--sub)';
+modeNote.textContent=browserMode?'ブラウザ版：このブラウザ内に保存します。別端末とは自動共有されません。':'Delta Chat版：このアプリの参加者と共有します。';
+document.querySelector('header').after(modeNote);
+
+const me=W.selfAddr,myName=W.selfName,$=s=>document.querySelector(s),dlg=$('#dlg'),rnd=Math.random,pick=a=>a[rnd()*a.length|0];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,10);
+// ---- 毛色・性格・お届け物・広場の設備 ----
+const BR={'ミケ':{col:'#fbf7ef',coat:'mike',eye:'#e8b43c'},'クロ':{col:'#3b3b46',coat:'plain',eye:'#ffd24a'},'シロ':{col:'#fffdf7',coat:'plain',eye:'#6fb6ff'},
+ 'チャトラ':{col:'#f0a35a',coat:'tabby',eye:'#7bc96a'},'サバトラ':{col:'#b9bcc4',coat:'tabby',eye:'#e8b43c'},'ハチワレ':{col:'#fffffb',coat:'hachi',eye:'#7bc96a'}};
+const PERS=['あまえんぼ','ツンデレ','元気','のんびり'],PSPD={'元気':1.3,'のんびり':.7};
+const LINES={'あまえんぼ':['なでて〜','ぎゅーってして','ずっと一緒だよ','にゃ〜ん♡'],'ツンデレ':['べ、べつに…','しょうがないな','…ありがと','ふんっ'],'元気':['走ろー！','わーい！','たのしー！','にゃっはー！'],'のんびり':['すやぁ…','ぽかぽかだ…','まぁいっか','ふにゃ〜']};
+const KIND={letter:{e:'💌',l:'手紙',p:'お手紙'},fish:{e:'🐟',l:'おさかな',p:'おさかな'},yarn:{e:'🧶',l:'毛糸玉',p:'毛糸玉'},mata:{e:'🌿',l:'マタタビ',p:'マタタビ'}};
+const OBJ={tree1:{x:.1,y:.28,e:'🌳',l:'木かげ'},tree2:{x:.9,y:.3,e:'🌳',l:'木かげ'},box:{x:.1,y:.6,e:'📦',l:'ダンボール'},yarn:{x:.25,y:.84,e:'🧶',l:'毛糸玉'},mata:{x:.78,y:.84,e:'🌿',l:'マタタビ'},food:{x:.5,y:.9,e:'🥣',l:'ごはん場'}};
+const TOPICS=['今夜のごはんについて','日向ぼっこの好スポット','ご主人のなでなで評価会','マタタビの分配会議','ねこじゃらし品評会','ダンボール新作発表会','自由にゃべり場'];
+const MOOD={happy:'ごきげん',hungry:'おなかすいた',sleepy:'ねむい',lonely:'さみしい'};
+const STAT=[['hunger','お腹','#FF9A5C'],['mood','ごきげん','#FF7AA2'],['energy','元気','#7AB8FF'],['clean','キレイ','#A0E3A0'],['aff','なつき','#D9A0FF']];
+let log=[],seen=new Set(),S={cats:{},letters:[],meets:[]},view={},sel=null,draft={breed:'ミケ',pers:'あまえんぼ',name:''},mail={kind:'letter',text:''},readAt=0;
+try{readAt=+localStorage.getItem('neko-read')||0}catch{}
+
+// ---- イベントソーシング: ステータスは時刻から決定的に計算 ----
+const cl=v=>Math.max(0,Math.min(100,v));
+function adv(v,t0,t1,park){const h=Math.max(0,(t1-t0)/36e5);return{hunger:cl(v.hunger-(park?7:6)*h),mood:cl(v.mood-3*h-(v.hunger<20?3*h:0)),energy:cl(v.energy+(park?-8:10)*h),clean:cl(v.clean-1.5*h),aff:cl(v.aff-.5*h)}}
+function apply(d,t,delta){d.v=adv(d.v,d.t,t,d.inPark);d.t=t;for(const k in delta)d.v[k]=cl(d.v[k]+delta[k])}
+const cur=d=>adv(d.v,d.t,Date.now(),d.inPark),lv=d=>1+Math.floor(d.xp/100);
+function send(p,info){p.t=Date.now();p.k=me+uid();p.o=me;return W.sendUpdate({payload:p,info},'')}
+// バックアップ形式1。生の履歴を保存し、重複イベントは共有時に除外する。
+const APP_VERSION='1.1.1',BACKUP_FORMAT='nekoshu-backup',MAX_BACKUP=2*1024*1024;
+let transferBusy=false,transferData=null,transferMessage='';
+const bytes=x=>new TextEncoder().encode(typeof x==='string'?x:JSON.stringify(x)).length;
+const safeText=(x,n)=>typeof x==='string'&&x.length>0&&x.length<=n;
+const safeId=x=>safeText(x,80)&&!['__proto__','constructor','prototype'].includes(x);
+function validEvent(e){
+ if(!e||typeof e!=='object'||!safeText(e.k,200)||!safeText(e.o,200)||!Number.isFinite(e.t)||e.t<0||e.t>Date.now()+86400000)return false;
+ if(e.a==='claim')return safeText(e.source,200)&&e.target===e.o&&e.source!==e.target;
+ if(e.a==='meet')return TOPICS.includes(e.topic)&&safeText(e.on,80);
+ if(e.a==='mail')return safeId(e.from)&&safeId(e.to)&&Object.hasOwn(KIND,e.kind)&&typeof e.text==='string'&&e.text.length<=300&&safeText(e.on,80);
+ if(!safeId(e.id))return false;
+ if(e.a==='adopt')return safeText(e.name,12)&&Object.hasOwn(BR,e.breed)&&PERS.includes(e.pers)&&safeText(e.on,80);
+ return ['feed','pat','brush','play'].includes(e.a)||(e.a==='park'&&typeof e.v==='boolean');
+}
+function validateBackup(data){
+ if(!data||data.format!==BACKUP_FORMAT||data.schema!==1||!Array.isArray(data.events)||!data.events.length||data.events.length>20000||!data.events.every(validEvent))throw Error('猫の集会の対応するバックアップではありません。形式1のファイルを選んでください。');
+ if(bytes(data)>MAX_BACKUP)throw Error('バックアップが大きすぎます。2MBまで読み込めます。');
+ const keys=new Map();for(const e of data.events){if(keys.has(e.k)&&JSON.stringify(keys.get(e.k))!==JSON.stringify(e))throw Error('同じ記録番号に異なる内容があります。');keys.set(e.k,e)}
+ // 不正な参照を含む手紙を取り込んで画面を壊さない。
+ const ids=new Set(data.events.filter(e=>e.a==='adopt').map(e=>e.id));
+ if(data.events.some(e=>e.a==='mail'&&(!ids.has(e.from)||!ids.has(e.to))))throw Error('手紙の届け先の猫の記録が不足しています。');
+ return data;
+}
+function ownerMap(events){
+ const map=new Map();
+ for(const e of events.filter(e=>e.a==='claim').sort((a,b)=>a.t-b.t||a.k.localeCompare(b.k))){
+  if(map.has(e.source))continue;
+  let x=e.target;const visited=new Set([e.source]);while(map.has(x)&&!visited.has(x)){visited.add(x);x=map.get(x)}
+  if(!visited.has(x))map.set(e.source,e.target);
+ }
+ return map;
+}
+function resolveOwner(owner,map=ownerMap(log)){const visited=new Set();while(map.has(owner)&&!visited.has(owner)){visited.add(owner);owner=map.get(owner)}return owner}
+function backupObject(){return{format:BACKUP_FORMAT,schema:1,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),exporter:me,events:log.map(e=>({...e}))}}
+function transferView(){
+ let h='<h2>バージョンをまたぐ引き継ぎ</h2><p>猫・お世話・手紙・集会の記録をまとめて保存し、新版で読み込めます。</p>';
+ h+='<p><b>今のデータを保存</b><br>'+(browserMode?'「書き出す」でJSONファイルをダウンロードします。':'「書き出す」でバックアップをチャットに添付する画面へ進みます。添付を実際に送信して残してください。')+'</p><div class="row"><button data-a="export" '+(transferBusy||!log.length?'disabled':'')+'>書き出す</button></div>';
+ h+='<p><b>保存したデータを読み込む</b><br>ブラウザではこの端末へ、Delta Chatでは同じアプリの参加者へ、手紙を含む記録を読み込みます。</p><div class="row"><button data-a="import" '+(transferBusy?'disabled':'')+'>バックアップを選ぶ</button></div><input id="backup-file" type="file" accept=".json,application/json" hidden>';
+ if(transferData){
+  const all=[...log,...transferData.events],map=ownerMap(all),adopts=new Map();for(const e of transferData.events)if(e.a==='adopt')adopts.set(e.id,e);
+  const owners=new Map();for(const e of adopts.values()){const owner=resolveOwner(e.o,map);if(!owners.has(owner))owners.set(owner,[]);owners.get(owner).push(e)}
+  h+='<h2>読み込む内容の確認</h2><p>猫 '+adopts.size+'匹・記録 '+transferData.events.length+'件。今の記録は消さず、同じ記録は重複させません。</p><label>以前の自分の猫<select id="claim-owner"><option value="">今回は記録だけ読み込む</option>';
+  const defaultOwner=resolveOwner(transferData.exporter,map);
+  for(const [owner,cats]of owners)h+='<option value="'+esc(owner)+'" '+(owner===defaultOwner?'selected':'')+'>'+esc(cats[0].on+' の '+cats.map(c=>c.name).join('・'))+(owner===me?'（引き継ぎ済み）':'')+'</option>';
+  h+='</select></label><p>自分の猫の名前を確かめて選んでください。ほかの人も、この新版で自分の猫を選んで引き継ぎます。</p><div class="row"><button data-a="restore" '+(transferBusy?'disabled':'')+'>この内容で引き継ぐ</button></div>';
+ }
+ h+='<p role="status" style="white-space:pre-wrap">'+esc(transferMessage)+'</p><p><small>1.0.0・1.0.1に書き出しボタンはありません。旧版の取り出し補助手順をご利用ください。未読の印と猫の歩く位置は引き継ぎ対象外です。</small></p><div class="row"><button class="ghost" data-a="close">閉じる</button></div>';
+ return h;
+}
+function transferStatus(s){transferMessage=s;if(view.k==='transfer')modal()}
+async function exportBackup(){
+ try{
+  if(typeof W.sendToChat!=='function')throw Error('このDelta Chatは書き出しに対応していません。Delta Chatを更新してください。');
+  const data=backupObject();validateBackup(data);
+  transferStatus(browserMode?'バックアップをダウンロードします。保存先のJSONファイルを確認してください。':'添付を送信する画面へ進みます。バックアップのファイルが付いていることを確認し、送信してください。');
+  await W.sendToChat({file:{name:'nekoshu-backup-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json',plainText:JSON.stringify(data)},text:'猫の集会 '+APP_VERSION+' 引き継ぎバックアップ'});
+ }catch(e){transferStatus('書き出せませんでした。'+e.message)}
+}
+async function readBackupFile(file){
+ try{if(!file)return;if(file.size>MAX_BACKUP)throw Error('ファイルは2MBまでです。');const data=validateBackup(JSON.parse(await file.text()));transferData=data;transferStatus('ファイルを確認しました。以前の自分の猫を選んでください。')}
+ catch(e){transferData=null;transferStatus('読み込めませんでした。'+e.message)}
+}
+async function selectBackup(){
+ transferData=null;transferStatus('ファイルを選んでいます。');
+ if(typeof W.importFiles==='function'){
+  try{const files=await W.importFiles({extensions:['.json'],mimeTypes:['application/json'],multiple:false});if(files[0])await readBackupFile(files[0]);else transferStatus('ファイルの選択を中止しました。')}
+  catch(e){transferStatus('ファイルを選べませんでした。'+e.message)}
+ }else $('#backup-file').click();
+}
+async function restoreBackup(){
+ if(transferBusy||!transferData)return;
+ try{
+  const data=validateBackup(transferData),chosen=$('#claim-owner').value,map=ownerMap([...log,...data.events]);
+  const events=data.events.filter(e=>!seen.has(e.k)).map(e=>({...e}));
+  if(chosen&&resolveOwner(chosen,map)!==me){
+   if(!data.events.some(e=>e.a==='adopt'&&resolveOwner(e.o,map)===chosen))throw Error('選んだ猫の記録を確認できません。');
+   const names=data.events.filter(e=>e.a==='adopt'&&resolveOwner(e.o,map)===chosen);
+   const ownIds=new Set([...mine().map(c=>c.id),...names.map(c=>c.id)]);if(ownIds.size>3)throw Error('自分の猫が3匹を超えます。猫を迎える前の新しいアプリで引き継いでください。');
+   events.push({a:'claim',source:chosen,target:me,o:me,k:me+uid(),t:Date.now()});
+  }
+  if(!events.length){transferStatus('すでに引き継ぎ済みです。重複した記録は追加しませんでした。');return}
+  // 先に全件を分割・検証し、途中まで送信してからサイズエラーになるのを防ぐ。
+  const limit=Math.min(Number(W.sendUpdateMaxSize)||128000,48000),chunks=[];let chunk=[];
+  for(const e of events){const candidate=[...chunk,e];if(bytes({payload:{a:'restore',events:candidate,k:me+'0'.repeat(8),o:me,t:Date.now()},info:'引き継ぎ'})>limit-1024){if(!chunk.length)throw Error('1件の記録が送信上限を超えています。');chunks.push(chunk);chunk=[e]}else chunk=candidate}
+  if(chunk.length)chunks.push(chunk);
+  transferBusy=true;modal();
+  for(let i=0;i<chunks.length;i++){
+   transferStatus((browserMode?'引き継ぎを保存しています ':'引き継ぎを共有しています ')+(i+1)+' / '+chunks.length+'。終わるまでアプリを開いてお待ちください。');
+   if(i)await new Promise(r=>setTimeout(r,Math.max(0,Number(W.sendUpdateInterval)||10000)));
+   await Promise.resolve(send({a:'restore',events:chunks[i]},'猫の集会のデータを引き継ぎ'));
+  }
+  transferData=null;transferStatus(browserMode?'引き継ぎを保存しました。猫の一覧を確認してください。':'引き継ぎの送信が終わりました。猫の一覧を確認してください。ほかの端末への反映には時間がかかることがあります。');
+ }catch(e){transferStatus('引き継げませんでした。'+e.message+' 同じファイルでやり直しても、受信済みの記録は重複しません。')}
+ finally{transferBusy=false;if(view.k==='transfer')modal()}
+}
+document.addEventListener('change',e=>{if(e.target.id==='backup-file')readBackupFile(e.target.files[0])});
+
+const COOL=3e5;
+function build(){
+  const s={cats:{},letters:[],meets:[]};
+  const owners=ownerMap(log);
+  for(const raw of log.slice().sort((a,b)=>a.t-b.t||(a.k<b.k?-1:1))){
+    if(raw.a==='claim')continue;
+    const e={...raw,o:resolveOwner(raw.o,owners)};
+    const d=s.cats[e.id];
+    if(e.a==='adopt'){if(!d&&Object.values(s.cats).filter(x=>x.owner===e.o).length<3)
+      s.cats[e.id]={id:e.id,name:e.name,breed:e.breed,pers:e.pers,owner:e.o,oname:e.on,born:e.t,inPark:true,v:{hunger:80,mood:85,energy:90,clean:88,aff:30},t:e.t,xp:0}}
+    else if(e.a==='meet'){const l=s.meets[s.meets.length-1];if(!l||e.t-l.t>COOL){const at=Object.values(s.cats).filter(x=>x.inPark);
+      at.forEach(c=>{apply(c,e.t,{mood:10,aff:2});c.xp+=8});s.meets.push({t:e.t,topic:e.topic,on:e.on,cats:at.map(c=>c.name)})}}
+    else if(!d&&e.a!=='mail')continue;
+    else if(e.a==='feed'){apply(d,e.t,{hunger:40,energy:10});d.xp+=4}
+    else if(e.a==='pat'){const own=e.o===d.owner;apply(d,e.t,{aff:own?7:2,mood:own?15:5});d.xp+=own?3:2}
+    else if(e.a==='brush'&&e.o===d.owner){apply(d,e.t,{clean:40,aff:4});d.xp+=5}
+    else if(e.a==='play'){apply(d,e.t,{energy:-15,mood:20});d.xp+=12}
+    else if(e.a==='park'&&e.o===d.owner){apply(d,e.t,{});d.inPark=!!e.v}
+    else if(e.a==='mail'){const f=s.cats[e.from];if(f&&f.owner===e.o&&s.cats[e.to]){s.letters.push(e);apply(f,e.t,{mood:5,aff:2});f.xp+=8}}
+  }
+  S=s;
+}
+const mine=()=>Object.values(S.cats).filter(d=>d.owner===me);
+const inbox=()=>S.letters.filter(l=>S.cats[l.to].owner===me);
+const moodOf=(d,sl)=>{if(sl)return'sleepy';const v=cur(d);return v.hunger<30?'hungry':v.energy<20?'sleepy':v.mood<30?'lonely':'happy'};
+const bossId=()=>{let b=null;for(const c of Object.values(S.cats))if(!b||c.xp>b.xp||(c.xp===b.xp&&c.born<b.born))b=c;return b&&b.xp>0?b.id:null};
+
+// ---- 2頭身の猫 (SVG) ----
+const hx=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const mix=(a,b,t)=>'#'+hx(a).map((v,i)=>Math.round(v+(hx(b)[i]-v)*t).toString(16).padStart(2,'0')).join('');
+let gid=0;
+function art(br,m){
+  const B_=BR[br]||BR['ミケ'],col=B_.col,co=B_.coat,id='g'+(++gid),lt=mix(col,'#ffffff',.45),dk=mix(col,'#000000',.22),bel=mix(col,'#ffffff',.7),st=mix(col,'#000000',.5);
+  const dark=hx(col)[0]<110,ink='#17101f',lc=dark?'#e6d9b8':ink,pink='#ff9fb0',orange='#f0a35a',black='#2b2b33';
+  const H=`url(#${id}h)`,B=`url(#${id}b)`;
+  const defs=`<defs><radialGradient id="${id}h" cx=".38" cy=".3" r=".85"><stop offset="0" stop-color="${lt}"/><stop offset=".55" stop-color="${col}"/><stop offset="1" stop-color="${dk}"/></radialGradient><radialGradient id="${id}b" cx=".4" cy=".25" r=".9"><stop offset="0" stop-color="${col}"/><stop offset="1" stop-color="${dk}"/></radialGradient><clipPath id="${id}c"><ellipse cx="60" cy="50" rx="37" ry="33"/></clipPath><clipPath id="${id}k"><ellipse cx="60" cy="100" rx="23" ry="21"/></clipPath></defs>`;
+  const tc=co==='hachi'?black:co==='mike'?orange:col;
+  const tail=`<path d="M78 108q26-4 22-30q-2-8-9-6" stroke="${tc}" stroke-width="9" fill="none" stroke-linecap="round"/>${co==='tabby'?`<path d="M78 108q26-4 22-30q-2-8-9-6" stroke="${st}" stroke-width="9" fill="none" stroke-dasharray="3 7" opacity=".6"/>`:''}`;
+  const eL=co==='hachi'?black:co==='mike'?orange:col,eR=co==='hachi'?black:co==='mike'?black:col;
+  const ears=`<g class="ear" style="transform-origin:36px 30px"><path d="M24 42 26 10 53 25Z" fill="${eL}"/><path d="M31 34 31 18 44 26Z" fill="${pink}"/></g><g class="ear" style="transform-origin:84px 30px"><path d="M96 42 94 10 67 25Z" fill="${eR}"/><path d="M89 34 89 18 76 26Z" fill="${pink}"/></g>`;
+  const patch={mike:`<g clip-path="url(#${id}c)"><path d="M20 10H66Q58 30 40 36Q26 40 20 30Z" fill="${orange}"/><path d="M76 10H100V44Q86 46 78 34Q74 20 76 10Z" fill="${black}"/></g>`,
+    hachi:`<g clip-path="url(#${id}c)"><path d="M18 8H102V46Q60 40 18 46Z" fill="${black}"/><path d="M60 22 46 52H74Z" fill="${col}"/></g>`,
+    tabby:`<path d="M50 20v9M60 18v11M70 20v9M24 52h9M26 59h8M96 52h-9M94 59h-8" stroke="${st}" stroke-width="3" stroke-linecap="round" opacity=".6"/>`,plain:''}[co];
+  const bodyP={mike:`<g clip-path="url(#${id}k)"><circle cx="48" cy="92" r="9" fill="${orange}"/><circle cx="73" cy="107" r="8" fill="${black}"/></g>`,
+    tabby:`<path d="M40 90h8M72 90h-8M38 100h9M73 100h-9M44 110h8" stroke="${st}" stroke-width="3" stroke-linecap="round" opacity=".55"/>`,hachi:'',plain:''}[co];
+  const whisk=`<path d="M32 60h-14M33 65l-13 4M88 60h14M87 65l13 4" stroke="${lc}" stroke-width="1.4" opacity=".5" stroke-linecap="round"/>`;
+  const eye=(x,ry)=>`<ellipse cx="${x}" cy="52" rx="${ry-1}" ry="${ry}" fill="${B_.eye}" stroke="#0004" stroke-width=".8"/><ellipse cx="${x}" cy="52" rx="2.4" ry="${ry-1.5}" fill="${ink}"/><circle cx="${x-2.2}" cy="${52-ry/2.4}" r="2.5" fill="#fff"/><circle cx="${x+2.6}" cy="${52+ry/2.4}" r="1.2" fill="#fff"/>`;
+  const eyes={happy:`<g class="eyes">${eye(45,8)}${eye(75,8)}</g>`,hungry:`<g class="eyes">${eye(45,7)}${eye(75,7)}</g><path d="M97 30q5 8 0 11q-5-3 0-11" fill="#6bb8ff"/>`,
+    lonely:`<g class="eyes">${eye(45,9)}${eye(75,9)}</g><path d="M36 41l14 4M84 41l-14 4" stroke="${lc}" stroke-width="2.5" stroke-linecap="round"/><path class="tear" d="M40 63q-3 5 0 7q3-2 0-7" fill="#8fd3ff"/>`,
+    sleepy:`<path d="M39 53q6 5 12 0M69 53q6 5 12 0" stroke="${lc}" stroke-width="3" fill="none" stroke-linecap="round"/>`}[m];
+  const mouth={happy:`<path d="M52 66q4 5 8 0q4 5 8 0" stroke="${lc}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`,
+    hungry:`<ellipse cx="60" cy="71" rx="5" ry="6" fill="#7a2a3a"/><ellipse cx="60" cy="74" rx="3" ry="2.4" fill="${pink}"/>`,
+    sleepy:`<path d="M56 68q4 2 8 0" stroke="${lc}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`,
+    lonely:`<path d="M52 72q8-6 16 0" stroke="${lc}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`}[m];
+  const zz=m==='sleepy'?[0,1,2].map(i=>`<text class="z" x="${88+i*6}" y="${22-i*8}" style="animation-delay:${i}s">z</text>`).join(''):'';
+  const hand=(x,r,c)=>`<g transform="rotate(${r} ${x} 98)"><ellipse class="arm ${c}" cx="${x}" cy="98" rx="7" ry="12" fill="${B}"/></g>`;
+  return`<svg viewBox="0 -10 120 140" class="pa ${m}" style="--d:${-(rnd()*4).toFixed(1)}s" role="img" aria-label="${esc(br)}">${defs}
+<g class="tail" style="transform-origin:76px 108px">${tail}</g>
+<ellipse class="ft1" cx="47" cy="120" rx="10" ry="6" fill="${dk}"/><ellipse class="ft2" cx="73" cy="120" rx="10" ry="6" fill="${dk}"/>
+<ellipse class="body" cx="60" cy="100" rx="23" ry="21" fill="${B}"/><ellipse cx="60" cy="104" rx="14" ry="13" fill="${bel}" opacity=".85"/>${bodyP}
+${hand(36,12,'l')}${hand(84,-12,'r')}
+<g class="hd">${ears}<ellipse cx="60" cy="50" rx="37" ry="33" fill="${H}"/><ellipse cx="44" cy="32" rx="12" ry="6" fill="#fff" opacity=".25" transform="rotate(-25 44 32)"/>${patch}<ellipse cx="60" cy="63" rx="9" ry="6.5" fill="${bel}" opacity=".9"/>${eyes}<path d="M56 57h8l-4 5z" fill="${pink}"/>${mouth}${whisk}<circle cx="36" cy="64" r="6" fill="${pink}" opacity=".4"/><circle cx="84" cy="64" r="6" fill="${pink}" opacity=".4"/></g>${zz}</svg>`;
+}
+
+// ---- 広場: 猫が歩き回り、操作に反応し、集会を開く ----
+const cats=new Map(),calm=matchMedia('(prefers-reduced-motion:reduce)').matches,objEls={};
+let ready=false,meeting=null;
+const pw=()=>$('#park').clientWidth,ph=()=>$('#park').clientHeight;
+for(let i=0;i<26;i++){const s=document.createElement('i');s.className='star';s.style.left=rnd()*100+'%';s.style.top=rnd()*15+'%';s.style.animationDelay=(-rnd()*4)+'s';$('#stars').append(s)}
+for(const[k,o]of Object.entries(OBJ)){const e=document.createElement('div');e.className='obj';e.style.left=o.x*100+'%';e.style.top=o.y*100+'%';e.innerHTML=o.e+'<small>'+o.l+'</small>';$('#park').append(e);objEls[k]=e}
+function setArt(o){const m=moodOf(o.p,o.sleeping),sig=o.p.breed+m;if(o.sig!==sig){o.sig=sig;o.hop.innerHTML=art(o.p.breed,m)}}
+function sync(){
+  const park=$('#park'),rw=pw()||320,rh=ph()||360,boss=bossId();
+  for(const p of Object.values(S.cats)){
+    let o=cats.get(p.id);
+    if(!p.inPark){if(o){o.el.remove();cats.delete(p.id)}continue}
+    if(!o){
+      const el=document.createElement('div');el.className='pet';el.dataset.a='sel';el.dataset.v=p.id;
+      el.innerHTML='<div class="shadow"></div><div class="flip"><div class="act"><div class="hop"></div></div></div><div class="bub"></div><div class="speech" hidden></div><div class="tag"></div><b class="badge" hidden></b>';
+      park.append(el);
+      o={el,flip:el.querySelector('.flip'),hop:el.querySelector('.hop'),bub:el.querySelector('.bub'),sp:el.querySelector('.speech'),tag:el.querySelector('.tag'),bd:el.querySelector('.badge'),
+        x:rw*(ready?.5:.1+rnd()*.8),y:rh*(ready?.95:.25+rnd()*.65),wait:rnd()*3,dir:1,s:1,st:'idle',lv:lv(p)};
+      cats.set(p.id,o);
+    }
+    o.p=p;setArt(o);
+    if(ready&&lv(p)>o.lv){say(o,'レベルアップ！✨');spawn(o,'✨','heart',4)}o.lv=lv(p);
+    o.tag.innerHTML=`${boss===p.id?'👑':''}${esc(p.name)} <small>Lv.${lv(p)}</small>`;
+    o.el.classList.toggle('mine',p.owner===me);o.el.classList.toggle('sel',sel===p.id);
+    const n=inbox().filter(l=>l.to===p.id&&l.t>readAt).length;o.bd.hidden=!n;o.bd.textContent='✉'+n;
+  }
+  for(const[id,o]of cats)if(!S.cats[id]){o.el.remove();cats.delete(id)}
+}
+const say=(o,t,ms=3000)=>{o.speech=t;o.su=performance.now()+ms};
+function decide(o,rw,rh){
+  const d=cur(o.p),pr=o.p.pers,r=rnd(),others=[...cats.values()].filter(x=>x!==o);
+  const at=(k,dx=0)=>({x:OBJ[k].x*rw+dx,y:OBJ[k].y*rh+18});
+  let t,st='sniff';
+  if(d.hunger<30){t=at('food',(rnd()-.5)*50);say(o,'おなかすいた…',2500)}
+  else if(d.energy<20){t=at(pick(['box','tree1','tree2']),(rnd()-.5)*30);st='sleep';say(o,LINES[pr][0],2500)}
+  else if(pr==='あまえんぼ'&&others.length&&r<.5){const f=pick(others);t={x:f.x+(rnd()-.5)*70,y:f.y+(rnd()-.5)*20};st='run'}
+  else if(pr==='ツンデレ'&&others.length&&r<.55){let best=null,bd=-1;for(let i=0;i<6;i++){const p={x:rw*(.1+rnd()*.8),y:rh*(.25+rnd()*.67)},m=Math.min(...others.map(f=>Math.hypot(f.x-p.x,f.y-p.y)));if(m>bd){bd=m;best=p}}t=best;if(rnd()<.4)say(o,'ふんっ',2000)}
+  else if(pr==='元気'&&r<.45){t=at(pick(['yarn','mata']),(rnd()-.5)*40);st=rnd()<.6?'run':'play'}
+  else if(pr==='のんびり'&&r<.4){t=at(pick(['box','tree1','tree2']),(rnd()-.5)*30);st='sleep'}
+  else{t={x:rw*(.1+rnd()*.8),y:rh*(.25+rnd()*.67)};st=rnd()<.5?'run':'sniff'}
+  o.tx=t.x;o.ty=t.y;o.st=st;
+  if(rnd()<.15&&!o.speech)say(o,pick(LINES[pr]),2200);
+}
+function startMeeting(e,remain=28e3){
+  const now=performance.now(),rw=pw(),rh=ph();meeting={until:now+remain,topic:e.topic,on:e.on};
+  const boss=bossId(),all=[...cats.values()].sort((a,b)=>a.p.id<b.p.id?-1:1),n=all.filter(o=>o.p.id!==boss).length,cx=rw*.5,cy=rh*.53,R=Math.min(rw,rh)*.26;
+  let i=0;
+  for(const o of all){
+    let sx=cx,sy=cy+8;
+    if(o.p.id!==boss){const a=Math.PI*2*(i++)/n-Math.PI/2,r=R*(o.p.pers==='ツンデレ'?1.35:1);sx=cx+Math.cos(a)*r*1.5;sy=cy+Math.sin(a)*r*.55+8}
+    o.sleeping=false;o.tx=null;o.hold=0;o.sit=false;setArt(o);
+    o.task={get:()=>({x:sx,y:sy}),spd:o.p.pers==='元気'?110:80,until:now+remain-1500,item:'',then:()=>{o.hold=meeting?meeting.until:0;o.sit=true;o.dir=Math.sign(cx-o.x)||1;o.nextChat=performance.now()+rnd()*2500}};
+  }
+  const b=cats.get(boss);if(b)say(b,'集会をはじめるにゃ',3500);
+}
+let last=performance.now();
+function tick(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;
+  const rw=pw(),rh=ph(),x0=rw*.08,x1=rw*.92,y0=rh*.2,y1=rh*.92;
+  for(const[k,e]of Object.entries(objEls))e.style.zIndex=Math.round(OBJ[k].y*rh);
+  const ban=$('#banner'),on=meeting&&now<meeting.until;
+  if(meeting&&!on)meeting=null;
+  if(on){const t='🌙 集会中 — 議題「'+meeting.topic+'」';if(ban.textContent!==t)ban.textContent=t;ban.hidden=false}else ban.hidden=true;
+  $('#ring').classList.toggle('on',!!on);
+  for(const o of cats.values()){
+    let tx=null,ty=0,spd=0,moving=false;
+    if(o.hold&&!on){o.hold=0;o.sit=false;o.wait=rnd()*3;o.tx=null}
+    if(o.task&&now>o.task.until)o.task=null;
+    if(o.task){const g=o.task.get();if(g){tx=g.x;ty=g.y;spd=o.task.spd}else o.task=null}
+    else if(o.hold){if(now>o.nextChat){say(o,rnd()<.45?pick(['にゃ〜','にゃーお','にゃにゃ']):pick(LINES[o.p.pers]),2400);o.nextChat=now+2500+rnd()*4500}}
+    else if(o.sleeping){if((o.wait-=dt)<=0){o.sleeping=false;setArt(o);o.wait=2}}
+    else if(!calm){
+      if(o.tx==null&&(o.wait-=dt)<=0)decide(o,rw,rh);
+      if(o.tx!=null){tx=o.tx;ty=o.ty;spd={run:75,play:55,sniff:26,sleep:38}[o.st]*(PSPD[o.p.pers]||1)}
+    }
+    if(tx!=null){
+      const dx=tx-o.x,dy=ty-o.y,d=Math.hypot(dx,dy);
+      if(d<5){
+        if(o.task){const f=o.task.then;o.task=null;f&&f()}
+        else{o.tx=null;if(o.st==='sleep'){o.sleeping=true;o.wait=18+rnd()*14;setArt(o)}else o.wait=1+rnd()*4}
+      }else{const st=Math.min(d,spd*dt);o.x+=dx/d*st;o.y+=dy/d*st;moving=true;if(Math.abs(dx)>3)o.dir=dx>0?1:-1}
+    }
+    o.x=Math.max(x0*.5,Math.min(rw-x0*.5,o.x));o.y=Math.max(y0,Math.min(y1,o.y));
+    o.s=.7+.5*(o.y-y0)/Math.max(1,y1-y0);
+    o.el.style.transform=`translate(${o.x}px,${o.y}px) translate(-50%,-100%) scale(${o.s})`;
+    o.el.style.zIndex=Math.round(o.y);
+    o.el.classList.toggle('walk',moving);o.el.classList.toggle('run',moving&&(!!o.task||o.st==='run'));o.el.classList.toggle('sit',!!o.hold);
+    o.flip.style.transform=`scaleX(${o.dir})`;
+    const sp=o.su>now?o.speech:'';if(o.sp.textContent!==sp){o.sp.textContent=sp;o.sp.hidden=!sp}
+    const b=o.task&&o.task.item||(!o.sleeping&&cur(o.p).hunger<30?'🐟':'');if(o.bub.textContent!==b)o.bub.textContent=b;
+  }
+  requestAnimationFrame(tick);
+}
+function spawn(o,txt,cls,n=1){for(let i=0;i<n;i++){const e=document.createElement('span');e.className='fx '+cls;e.textContent=txt;
+  e.style.left=(o.x+(rnd()-.5)*(n>1?60:10))+'px';e.style.top=(o.y-100*o.s-rnd()*14)+'px';e.style.animationDelay=(i*.12)+'s';
+  e.onanimationend=()=>e.remove();$('#park').append(e)}}
+function act(o,c,ms){o.el.classList.add(c);setTimeout(()=>o.el.classList.remove(c),ms)}
+function react(e){
+  if(e.a==='meet'){startMeeting(e);return}
+  const o=cats.get(e.id),own=o&&o.p.owner===e.o;
+  if(e.a==='feed'&&o){say(o,'もぐもぐ！おいしい！');spawn(o,pick(['🐟','🍤','🥛']),'drop');setTimeout(()=>act(o,'eat',1500),700);setTimeout(()=>spawn(o,'❤️','heart',3),1500)}
+  else if(e.a==='pat'&&o){say(o,own?pick(LINES[o.p.pers]):'なでなで♡');act(o,'squish',700);spawn(o,'❤️','heart',5)}
+  else if(e.a==='brush'&&o){say(o,'さらさら〜✨');act(o,'squish',700);spawn(o,'✨','heart',5)}
+  else if(e.a==='play'&&o){say(o,o.p.pers==='元気'?'にゃっはー！':'たのしー！');o.sleeping=false;
+    o.task={get:()=>({x:OBJ.yarn.x*pw(),y:OBJ.yarn.y*ph()+18}),spd:110,until:performance.now()+12e3,item:'',then:()=>{spawn(o,'🧶','pop');act(o,'jump',800);setTimeout(()=>spawn(o,'❤️','heart',2),500)}};o.tx=null}
+  else if(e.a==='park'&&o&&e.v)say(o,'集会に行くにゃ！');
+  else if(e.a==='adopt'&&o){say(o,'よろしくにゃ！');spawn(o,'❤️','heart',4)}
+  else if(e.a==='mail'){const f=cats.get(e.from),t=cats.get(e.to),it=KIND[e.kind].e;
+    if(f&&t&&f!==t){say(f,'お届けにゃ！');f.sleeping=false;f.task={get:()=>cats.has(e.to)?{x:t.x-34*(Math.sign(t.x-f.x)||1),y:t.y}:null,spd:110,until:performance.now()+25e3,item:it,then:()=>{spawn(t,it,'pop');act(t,'jump',800);say(t,'ありがとにゃ！');spawn(t,'❤️','heart',2)}};f.tx=null}
+    else if(t){spawn(t,it,'pop');act(t,'jump',800)}}
+}
+
+// ---- 画面 ----
+function render(){
+  const un=inbox().filter(l=>l.t>readAt).length,ms=mine(),all=Object.values(S.cats).sort((a,b)=>(b.owner===me)-(a.owner===me)||a.born-b.born);
+  if(!S.cats[sel])sel=(ms[0]||all[0]||{}).id||null;
+  $('#hb').innerHTML=`<button data-a="transfer">引き継ぎ</button> <button data-a="meet">🌙 集会</button> <button data-a="adopt" ${ms.length>=3?'disabled':''}>+ 新しい猫 ${ms.length}/3</button>`;
+  const b=$('#mb .badge');b.hidden=!un;b.textContent=un;
+  $('#empty').hidden=Object.values(S.cats).some(d=>d.inPark);
+  $('#roster').innerHTML=all.map(d=>`<button class="chip${d.id===sel?' on':''}${d.inPark?'':' home'}" data-a="sel" data-v="${d.id}">${art(d.breed,'happy')}<span>${esc(d.name)}<br><small class="sub">${d.owner===me?'うちの子':esc(d.oname)}${d.inPark?'':' 🏠'}</small></span></button>`).join('');
+  const d=S.cats[sel];
+  if(!d)$('#panel').innerHTML='';
+  else{
+    const v=cur(d),own=d.owner===me,m=moodOf(d),xp=d.xp%100;
+    const A=own?[['feed','ごはん','🐟','お腹+40'],['pat','なでなで','🤲','なつき+7'],['brush','ブラッシング','🪮','キレイ+40'],['play','あそぶ','🧶','気分UP'],['park',d.inPark?'おうちへ':'集会へ',d.inPark?'🏠':'🌙',d.inPark?'休憩':'広場へ']]
+      :[['feed','ごはん','🐟','あげる'],['pat','なでなで','🤲','なかよし'],['play','あそぶ','🧶','いっしょに'],['write','手紙','💌','届ける']];
+    $('#panel').innerHTML=`<div class="panel"><div class="ph">${art(d.breed,m)}<div style="flex:1;min-width:0"><b>${bossId()===d.id?'👑':''}${esc(d.name)}</b> <span class="pill">Lv.${lv(d)}</span> <span class="pill" style="background:${d.inPark?'#2f9e5f':'#8a8a8a'}">${d.inPark?'広場':'おうち'}</span><br><small class="sub">${esc(d.breed)}・${esc(d.pers)}・${MOOD[m]}<br>${own?'うちの猫':esc(d.oname)+'の猫'}${bossId()===d.id?'・ボス猫':''}</small><div class="bar" title="経験値"><i style="width:${xp}%;background:#8b5cf6"></i></div></div></div>`+
+      STAT.map(([k,l,c])=>`<div class="stat"><span>${l}</span><div class="bar"><i style="width:${v[k]}%;background:${c}"></i></div><b>${Math.round(v[k])}</b></div>`).join('')+
+      `<div class="acts">${A.map(([k,l,i,s])=>`<button data-a="${k}" data-v="${d.id}" ${k==='feed'&&v.hunger>85?'disabled':''}><span>${i}</span>${l}<small>${s}</small></button>`).join('')}</div></div>`;
+  }
+  sync();
+  if(dlg.open&&(view.k==='inbox'||view.k==='meet'))modal();
+}
+function show(v){view=v;modal();if(!dlg.open)dlg.showModal()}
+function modal(){
+  const v=view;let h='';
+  if(v.k==='transfer'){h=transferView();
+  }else if(v.k==='adopt'){
+    h=`<h2>新しい猫を迎える</h2><input id="nm" maxlength="12" placeholder="なまえ" value="${esc(draft.name)}"><div class="pick">${Object.keys(BR).map(b=>`<button class="opt${draft.breed===b?' on':''}" data-a="br" data-v="${b}">${art(b,'happy')}${b}</button>`).join('')}</div><div class="pick">${PERS.map(p=>`<button class="pr${draft.pers===p?' on':''}" data-a="pr" data-v="${p}">${p}</button>`).join('')}</div><div class="row"><button data-a="adoptgo">迎える</button><button class="ghost" data-a="close">キャンセル</button></div>`;
+  }else if(v.k==='meet'){
+    const l=S.meets[S.meets.length-1],wait=l?COOL-(Date.now()-l.t):0,mn=Math.ceil(wait/6e4);
+    h=`<h2>🌙 猫の集会</h2><p class="sub">広場にいる猫が集会所に集まって話し合います。参加した猫はごきげんUP＋経験値！${wait>0?`<br><b>あと約${mn}分は開けません。</b>`:''}</p>
+    <div class="pick">${TOPICS.map((t,i)=>`<button class="pr" data-a="meetgo" data-v="${i}" ${wait>0?'disabled':''}>${t}</button>`).join('')}<button data-a="meetgo" data-v="-1" ${wait>0?'disabled':''}>おまかせ</button></div>
+    <h2 style="margin-top:14px">集会の記録</h2>`+(S.meets.length?S.meets.slice().reverse().slice(0,20).map(m=>`<div class="air"><b>${esc(m.topic)}</b><br><small class="sub">${new Date(m.t).toLocaleString('ja-JP')}・${esc(m.on)}が招集</small><p>参加: ${m.cats.length?m.cats.map(esc).join('、'):'(だれもいなかった)'}</p></div>`).join(''):'<p class="sub">まだ集会は開かれていません。</p>')+`<div class="row"><button class="ghost" data-a="close">閉じる</button></div>`;
+  }else if(v.k==='write'){
+    const t=S.cats[v.id],ms=mine();
+    h=ms.length?`<h2>${esc(t.name)}へお届け</h2><label>運ぶ猫<select id="from">${ms.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select></label><div class="pick">${Object.entries(KIND).map(([k,o])=>`<button class="opt${mail.kind===k?' on':''}" data-a="kind" data-v="${k}"><span style="font-size:1.6rem">${o.e}</span><br>${o.l}</button>`).join('')}</div><textarea id="txt" maxlength="300" rows="4" placeholder="${mail.kind==='letter'?esc(t.oname)+'さんへのメッセージ':'ひとこと(なくてもOK)'}">${esc(mail.text)}</textarea><div class="row"><button data-a="post" data-v="${t.id}">届けてもらう</button><button class="ghost" data-a="close">キャンセル</button></div>`
+      :`<p>お届けには、先に自分の猫を迎えてください。</p><div class="row"><button data-a="adopt">迎える</button><button class="ghost" data-a="close">閉じる</button></div>`;
+  }else if(v.k==='inbox'){
+    const ls=inbox().sort((a,b)=>b.t-a.t).slice(0,30);
+    h=`<h2>届いたお手紙・お届け物</h2>`+(ls.length?ls.map(l=>{const f=S.cats[l.from],t=S.cats[l.to],K=KIND[l.kind];
+      return`<div class="air"><div class="from">${art(f.breed,'happy')}<small>${esc(f.name)}（${esc(l.on)}）が${K.p}を${esc(t.name)}のところへ届けにきたよ ${K.e}</small></div>${l.text?`<p>${esc(l.text)}</p>`:''}<small class="sub">${new Date(l.t).toLocaleString('ja-JP')}</small></div>`}).join('')
+      :'<p class="sub">まだ届いていません。</p>')+`<div class="row"><button class="ghost" data-a="close">閉じる</button></div>`;
+  }
+  dlg.innerHTML=h;
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-a]');if(!b||b.disabled)return;
+  const a=b.dataset.a,v=b.dataset.v,d=S.cats[v];
+  switch(a){
+    case'transfer':return show({k:'transfer'});
+    case'export':return exportBackup();
+    case'import':return selectBackup();
+    case'restore':return restoreBackup();
+    case'sel':sel=v;return render();
+    case'close':return dlg.close();
+    case'inbox':readAt=Date.now();try{localStorage.setItem('neko-read',readAt)}catch{}show({k:'inbox'});return render();
+    case'adopt':return show({k:'adopt'});
+    case'meet':return show({k:'meet'});
+    case'meetgo':{const t=+v<0?pick(TOPICS):TOPICS[+v];dlg.close();return send({a:'meet',topic:t,on:myName},`${myName}が猫の集会を呼びかけた：${t}`)}
+    case'br':case'pr':draft.name=$('#nm').value;draft[a==='br'?'breed':'pers']=v;return modal();
+    case'adoptgo':{const name=$('#nm').value.trim();if(!name)return $('#nm').focus();dlg.close();draft.name='';
+      return send({a:'adopt',id:uid(),name,breed:draft.breed,pers:draft.pers,on:myName},`${myName}の新入り：${name}（${draft.breed}）`)}
+    case'feed':return send({a:'feed',id:v},`${myName}が${d.name}にごはんをあげた`);
+    case'pat':return send({a:'pat',id:v},`${myName}が${d.name}をなでなで`);
+    case'brush':return send({a:'brush',id:v},`${myName}が${d.name}をブラッシング`);
+    case'play':return send({a:'play',id:v},`${myName}が${d.name}と遊んだ`);
+    case'park':return send({a:'park',id:v,v:!d.inPark},`${d.name}が${d.inPark?'おうちに帰った':'集会に向かった'}`);
+    case'write':mail={kind:'letter',text:''};return show({k:'write',id:v});
+    case'kind':mail.text=$('#txt').value;mail.kind=v;return modal();
+    case'post':{const text=$('#txt').value.trim();if(mail.kind==='letter'&&!text)return $('#txt').focus();const from=$('#from').value;dlg.close();
+      return send({a:'mail',from,to:v,kind:mail.kind,text,on:myName},`${S.cats[from].name}が${KIND[mail.kind].p}を${d.name}へ届けた`)}
+  }
+});
+setInterval(render,10000);
+W.setUpdateListener(u=>{
+  const e=u.payload;let fresh=false;
+  const incoming=e&&e.a==='restore'?(Array.isArray(e.events)&&e.events.length<=20000&&e.events.every(validEvent)?e.events:[]):[e];
+  for(const item of incoming)if(validEvent(item)&&!seen.has(item.k)){seen.add(item.k);log.push(item);if(item===e)fresh=true}
+  if(!u.max_serial||u.serial===u.max_serial){build();render()}
+  if(ready&&fresh&&Date.now()-e.t<12e4)setTimeout(()=>react(e),60);
+},0).then(()=>{ready=true;build();render();const m=S.meets[S.meets.length-1];if(m&&Date.now()-m.t<2e4&&!meeting)startMeeting(m,28e3-(Date.now()-m.t))});
+build();render();requestAnimationFrame(tick);
+</script></body></html>
